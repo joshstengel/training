@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Baseball Training Plan</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+:root {
+  --bg: #0d0f14; --card: #151820; --card2: #1c202e; --border: #252b3f;
+  --gold: #e2b93b; --blue: #4b9fe4; --red: #e05a47; --green: #43d97c;
+  --text: #eaedf5; --muted: #6b7591; --r: 12px;
+}
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 15px; min-height: 100vh; overflow-x: hidden; }
+.hdr { background: linear-gradient(160deg,#0d0f14,#141929); border-bottom: 2px solid var(--gold); padding: 16px 16px 12px; position: sticky; top: 0; z-index: 50; }
+.hdr-eye { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 2px; }
+.hdr-title { font-size: 22px; font-weight: 800; color: var(--gold); letter-spacing: 1px; }
+.tabs { display: flex; overflow-x: auto; background: var(--card); border-bottom: 1px solid var(--border); scrollbar-width: none; position: sticky; top: 62px; z-index: 40; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { flex-shrink: 0; padding: 11px 16px; font-size: 12px; font-weight: 600; color: var(--muted); border-bottom: 3px solid transparent; cursor: pointer; white-space: nowrap; user-select: none; }
+.tab.on { color: var(--gold); border-bottom-color: var(--gold); }
+.pg { display: none; padding: 12px 12px 80px; }
+.pg.on { display: block; }
+.focus { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: var(--r); padding: 11px 13px; margin-bottom: 10px; font-size: 12px; color: var(--muted); line-height: 1.5; }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.scard { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 10px 12px; }
+.slbl { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+.sval { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.3; }
+.dcard { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; margin-bottom: 10px; }
+.dtrig { display: flex; align-items: center; gap: 10px; padding: 13px 14px; cursor: pointer; user-select: none; }
+.dbadge { font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; flex-shrink: 0; }
+.bg-gym { background: rgba(75,159,228,.15); color: var(--blue); border: 1px solid rgba(75,159,228,.3); }
+.bg-home { background: rgba(67,217,124,.12); color: var(--green); border: 1px solid rgba(67,217,124,.25); }
+.bg-proto { background: rgba(226,185,59,.12); color: var(--gold); border: 1px solid rgba(226,185,59,.25); }
+.dtitle { flex: 1; font-size: 14px; font-weight: 700; line-height: 1.3; }
+.darrow { color: var(--muted); font-size: 12px; transition: transform .2s; flex-shrink: 0; }
+.dcard.op .darrow { transform: rotate(180deg); }
+.dbody { display: none; border-top: 1px solid var(--border); background: var(--card2); }
+.dcard.op .dbody { display: block; }
+.shead { font-size: 9px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); padding: 11px 14px 4px; }
+.xt { width: 100%; border-collapse: collapse; }
+.xh { font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); padding: 3px 14px 3px; text-align: right; }
+.xh:first-child { text-align: left; }
+.xr td { padding: 7px 14px; border-top: 1px solid rgba(37,43,63,.6); vertical-align: top; }
+.xname { font-size: 13px; font-weight: 600; }
+.xnote { font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.35; }
+.xsets { font-size: 12px; font-weight: 700; color: var(--blue); text-align: right; white-space: nowrap; }
+.xreps { font-size: 12px; font-weight: 700; color: var(--gold); text-align: right; white-space: nowrap; }
+.xrest { font-size: 11px; color: var(--muted); text-align: right; white-space: nowrap; }
+.arm-banner { margin: 10px 14px 12px; background: rgba(224,90,71,.08); border: 1px solid rgba(224,90,71,.3); border-radius: 8px; padding: 10px 12px; }
+.arm-title { font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--red); margin-bottom: 3px; }
+.arm-body { font-size: 12px; color: #e09080; line-height: 1.4; }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-eye">12-Week Off-Season Program</div>
+  <div class="hdr-title">&#9918; Baseball Athlete</div>
+</div>
+<div class="tabs" id="tabs"></div>
+<div id="pages"></div>
+
+<script>
+var D=[
+{tab:"Ph 1 · Wks 1-4",focus:"Foundation & Movement Quality — Learn the movements, build baseline strength, introduce explosive work at low intensity.",
+stats:[{l:"Intensity",v:"60–70% max effort"},{l:"Volume",v:"Moderate"},{l:"Rest (strength)",v:"90 sec"},{l:"Rest (power)",v:"2–3 min"}],
+days:[
+{t:"Day A — Lower Power + Pull",b:"gym",arm:1,sections:[
+{h:"Warm-Up (8 min)",rows:[{n:"Jump rope or light jog",s:"1",r:"3 min",x:"—"},{n:"Hip 90/90 switches",s:"1",r:"8/side",x:"—"},{n:"World's greatest stretch",s:"1",r:"5/side",x:"—"},{n:"Glute bridge",s:"2",r:"10",x:"—"}]},
+{h:"Explosive Block — Do First, While Fresh",rows:[{n:"Box jump",s:"3",r:"4 reps",x:"2 min",note:"Land soft, full reset between reps"},{n:"Med ball rotational scoop toss",s:"3",r:"4/side",x:"90s",note:"Max intent — drive from the hip"}]},
+{h:"Strength Block",rows:[{n:"Trap bar deadlift",s:"4",r:"5",x:"2 min",note:"Brace tight, drive through the floor"},{n:"Goblet squat",s:"3",r:"8",x:"90s",note:"Heels down, chest up"},{n:"Single-leg RDL (DB)",s:"3",r:"8/side",x:"90s",note:"Control the descent"},{n:"Pull-ups or lat pulldown",s:"3",r:"6–8",x:"90s",note:"Full range, no kipping"}]},
+{h:"Core",rows:[{n:"Dead bug",s:"3",r:"8/side",x:"60s"},{n:"Pallof press",s:"3",r:"10/side",x:"60s"}]}]},
+{t:"Day B — Upper Power + Push",b:"gym",arm:1,sections:[
+{h:"Warm-Up (8 min)",rows:[{n:"Jump rope or light jog",s:"1",r:"3 min",x:"—"},{n:"Arm circles + band pull-aparts",s:"2",r:"15 each",x:"—"},{n:"Thoracic rotation (quadruped)",s:"1",r:"8/side",x:"—"}]},
+{h:"Explosive Block — Do First, While Fresh",rows:[{n:"Med ball chest pass (wall)",s:"3",r:"5",x:"2 min",note:"Explosive release — max intent"},{n:"KB or DB swing",s:"3",r:"6",x:"90s",note:"Hip snap — NOT a squat movement"}]},
+{h:"Strength Block",rows:[{n:"Incline DB bench press",s:"4",r:"8",x:"90s"},{n:"Single-arm DB row",s:"3",r:"10/side",x:"90s",note:"Brace core throughout"},{n:"Landmine rotation or cable chop",s:"3",r:"8/side",x:"90s",note:"Key bat speed transfer exercise"},{n:"DB lateral raise",s:"3",r:"12",x:"60s"}]},
+{h:"Core",rows:[{n:"Plank",s:"3",r:"30s",x:"60s"},{n:"Side plank",s:"2",r:"25s/side",x:"60s"}]}]},
+{t:"Day C — Full Body + Speed",b:"gym",arm:0,sections:[
+{h:"Warm-Up (8 min)",rows:[{n:"Jump rope or light jog",s:"1",r:"3 min",x:"—"},{n:"Lateral band walk",s:"2",r:"12/side",x:"—"},{n:"Inchworm to push-up",s:"1",r:"5",x:"—"}]},
+{h:"Speed Block — Do First",rows:[{n:"Broad jump",s:"3",r:"4",x:"2 min",note:"Max distance — full reset between reps"},{n:"10-yard sprint",s:"6",r:"1",x:"90s",note:"Pure acceleration — top velocity trainer"}]},
+{h:"Strength Block",rows:[{n:"Bulgarian split squat (DB)",s:"3",r:"8/side",x:"90s",note:"Control the descent"},{n:"DB Romanian deadlift",s:"3",r:"10",x:"90s"},{n:"Push-up (weighted or tempo)",s:"3",r:"10",x:"90s"},{n:"Face pull or band ER",s:"3",r:"12",x:"60s"}]},
+{h:"Rotational Finisher",rows:[{n:"Med ball rotational slam (wall)",s:"3",r:"5/side",x:"90s"},{n:"Pallof press (anti-rotation)",s:"3",r:"10/side",x:"60s"}]}]}]},
+
+{tab:"Ph 2 · Wks 5-8",focus:"Power Development — Increase loading on strength work, push explosive volume, introduce hip-to-shoulder separation.",
+stats:[{l:"Intensity",v:"70–80% str / 100% power"},{l:"Volume",v:"Moderate-high"},{l:"Rest (strength)",v:"2 min"},{l:"Rest (power)",v:"3 min"}],
+days:[
+{t:"Day A — Lower Power + Pull",b:"gym",arm:1,sections:[
+{h:"Warm-Up (8 min)",rows:[{n:"Jump rope or jog",s:"1",r:"3 min",x:"—"},{n:"Hip 90/90 + hip flexor stretch",s:"1",r:"8/side",x:"—"},{n:"Glute bridge march",s:"2",r:"10/side",x:"—"}]},
+{h:"Explosive Block — Do First",rows:[{n:"Box jump (raise height from Ph 1)",s:"4",r:"4",x:"2 min",note:"Progression — raise the box"},{n:"Med ball rotational scoop toss",s:"4",r:"5/side",x:"90s",note:"Drive from hip, not the arm"}]},
+{h:"Strength Block — Add 10–20 lbs vs Ph 1",rows:[{n:"Trap bar deadlift",s:"4",r:"4",x:"2–3 min",note:"Load up — quality reps only"},{n:"Front squat or goblet squat",s:"3",r:"6",x:"2 min"},{n:"Single-leg RDL (DB)",s:"3",r:"10/side",x:"90s"},{n:"Weighted pull-up or negatives",s:"4",r:"5–6",x:"2 min"}]},
+{h:"Core",rows:[{n:"Dead bug (3s each extension)",s:"3",r:"8/side",x:"60s"},{n:"Tall-kneeling Pallof press",s:"3",r:"12/side",x:"60s"}]}]},
+{t:"Day B — Upper Power + Push",b:"gym",arm:1,sections:[
+{h:"Warm-Up (8 min)",rows:[{n:"Jump rope",s:"1",r:"3 min",x:"—"},{n:"Band pull-aparts + Y/T/W",s:"2",r:"12 each",x:"—"},{n:"T-spine rotation (quadruped)",s:"1",r:"8/side",x:"—"}]},
+{h:"Explosive Block — Do First",rows:[{n:"Med ball overhead slam",s:"4",r:"5",x:"2 min",note:"New this phase — max effort full body"},{n:"Med ball rotational scoop toss",s:"4",r:"5/side",x:"90s"},{n:"Plyo push-up (hands off ground)",s:"3",r:"4",x:"90s",note:"New this phase"}]},
+{h:"Strength Block — Heavier vs Ph 1",rows:[{n:"DB bench press (flat)",s:"4",r:"6",x:"2 min"},{n:"Single-arm DB row",s:"4",r:"8/side",x:"90s"},{n:"Landmine press",s:"3",r:"8/side",x:"90s",note:"Shoulder-friendly pressing"},{n:"Landmine rotation",s:"3",r:"10/side",x:"90s"}]},
+{h:"Core",rows:[{n:"Plank (add plate on back)",s:"3",r:"35s",x:"60s"},{n:"Med ball rotational slam",s:"3",r:"6/side",x:"90s"}]}]},
+{t:"Day C — Full Body + Speed",b:"gym",arm:0,sections:[
+{h:"Warm-Up (8 min)",rows:[{n:"Jump rope",s:"1",r:"3 min",x:"—"},{n:"Hip flow + lateral lunge",s:"1",r:"8/side",x:"—"}]},
+{h:"Speed Block — Do First",rows:[{n:"Broad jump (triple — continuous)",s:"4",r:"3 jumps",x:"2 min",note:"Land and immediately explode — no reset"},{n:"Flying 10-yard sprint",s:"6",r:"1",x:"90s",note:"10-yd build-up then 10-yd max blast"}]},
+{h:"Strength Block — Heavier vs Ph 1",rows:[{n:"Bulgarian split squat (add load)",s:"4",r:"6/side",x:"2 min"},{n:"DB RDL",s:"3",r:"8",x:"90s"},{n:"Close-grip push-up or DB bench",s:"3",r:"10",x:"90s"},{n:"Face pull",s:"3",r:"15",x:"60s"}]},
+{h:"Rotational Finisher",rows:[{n:"Med ball side toss (hip drive)",s:"4",r:"5/side",x:"90s"},{n:"Rotational chop (cable or band)",s:"3",r:"10/side",x:"60s"}]}]}]},
+
+{tab:"Ph 3 · Wks 9-12",focus:"Peak Power & Specificity — Max intent on all power work, heaviest weights, sport-specific rotational patterns.",
+stats:[{l:"Intensity",v:"85–90% str / 100% power"},{l:"Volume",v:"Lower — fewer sets"},{l:"Rest (strength)",v:"2–3 min"},{l:"Rest (power)",v:"3 min — full recovery"}],
+days:[
+{t:"Day A — Lower Power + Pull",b:"gym",arm:1,sections:[
+{h:"Warm-Up (8 min)",rows:[{n:"Jump rope",s:"1",r:"3 min",x:"—"},{n:"Hip mobility flow",s:"1",r:"8/side",x:"—"},{n:"Glute bridge + march",s:"2",r:"10 each",x:"—"}]},
+{h:"Peak Power Block — Max Effort Every Rep",rows:[{n:"Depth drop to broad jump",s:"4",r:"3",x:"3 min",note:"Step off box, absorb, immediately explode"},{n:"Med ball hip-to-shoulder toss",s:"4",r:"5/side",x:"2 min",note:"Hip leads — shoulder follows. Key to velocity."}]},
+{h:"Strength Block — Heaviest Weights of Program",rows:[{n:"Trap bar deadlift",s:"4",r:"3",x:"3 min",note:"Heaviest yet — no grinding reps"},{n:"Front squat",s:"3",r:"4",x:"2–3 min"},{n:"Weighted pull-up",s:"4",r:"4",x:"2 min"},{n:"Single-leg RDL",s:"3",r:"8/side",x:"90s",note:"Keep this in — injury prevention"}]},
+{h:"Core",rows:[{n:"Dead bug",s:"2",r:"8/side",x:"60s"},{n:"Med ball rotational slam",s:"3",r:"5/side",x:"90s"}]}]},
+{t:"Day B — Upper Power + Push",b:"gym",arm:1,sections:[
+{h:"Warm-Up (8 min)",rows:[{n:"Jump rope",s:"1",r:"3 min",x:"—"},{n:"Band Y/T/W + pull-aparts",s:"2",r:"12 each",x:"—"},{n:"T-spine CARs",s:"1",r:"6/side",x:"—"}]},
+{h:"Peak Power Block — Max Effort Every Rep",rows:[{n:"Clap push-up",s:"4",r:"4",x:"2 min",note:"Highest upper body explosion of the program"},{n:"Med ball rotational scoop toss",s:"5",r:"5/side",x:"2 min",note:"Peak phase — most power output of program"},{n:"Med ball overhead slam",s:"3",r:"5",x:"90s"}]},
+{h:"Strength Block",rows:[{n:"DB bench press",s:"4",r:"5",x:"2 min",note:"Heaviest yet"},{n:"Single-arm DB row",s:"4",r:"6/side",x:"90s"},{n:"Landmine press",s:"3",r:"6/side",x:"90s"},{n:"Cable/band chop (high to low)",s:"3",r:"10/side",x:"90s"}]},
+{h:"Core",rows:[{n:"Weighted plank",s:"2",r:"40s",x:"60s"}]}]},
+{t:"Day C — Full Body + Speed",b:"gym",arm:0,sections:[
+{h:"Warm-Up (8 min)",rows:[{n:"Jump rope",s:"1",r:"3 min",x:"—"},{n:"Hip and ankle mobility",s:"1",r:"8/side",x:"—"}]},
+{h:"Peak Speed Block — Full Recovery",rows:[{n:"Resisted sprint 10 yd (band)",s:"4",r:"1",x:"2 min",note:"Partner holds band around waist"},{n:"Unresisted sprint 20 yd",s:"4",r:"1",x:"2 min",note:"Right after resisted — feel the speed contrast"}]},
+{h:"Strength Block",rows:[{n:"Bulgarian split squat (heaviest yet)",s:"4",r:"5/side",x:"2 min"},{n:"DB RDL",s:"3",r:"6",x:"2 min"},{n:"Push-up to DB row",s:"3",r:"8",x:"90s"},{n:"Face pull + external rotation",s:"3",r:"15",x:"60s"}]},
+{h:"Baseball Rotational Finisher",rows:[{n:"Med ball hip-lead side toss",s:"4",r:"6/side",x:"90s",note:"Hip rotates THEN shoulder — this is velocity"},{n:"Med ball overhead slam",s:"3",r:"5",x:"90s"}]}]}]},
+
+{tab:"Home Days",focus:"Pick one option based on your gym week. Option B (mobility) can be done every single day — even after gym days.",
+stats:[{l:"Option A",v:"Plyo & power"},{l:"Option B",v:"Mobility & arm care"},{l:"Option C",v:"DB/bodyweight strength"},{l:"Frequency",v:"Any non-gym day"}],
+days:[
+{t:"Option A — Plyometrics & Power",b:"home",arm:0,sections:[
+{h:"Do 3x/week on non-gym days",rows:[{n:"Jump rope (fast feet)",s:"3",r:"1 min",x:"45s"},{n:"Broad jumps",s:"3",r:"5",x:"90s"},{n:"Lateral bounds",s:"3",r:"6/side",x:"90s"},{n:"Skater hops",s:"3",r:"8/side",x:"60s"},{n:"Explosive push-up",s:"3",r:"8",x:"60s"}]}]},
+{t:"Option B — Mobility & Arm Care",b:"home",arm:0,sections:[
+{h:"Fine any day — even after gym",rows:[{n:"Hip 90/90 switches",s:"2",r:"8/side",x:"—"},{n:"T-spine rotation (quadruped)",s:"2",r:"8/side",x:"—"},{n:"Shoulder ER stretch",s:"2",r:"30s/side",x:"—"},{n:"Band pull-aparts",s:"3",r:"15",x:"—"},{n:"Full arm care routine (see Arm Care tab)",s:"1",r:"full",x:"—"}]}]},
+{t:"Option C — DB / Bodyweight Strength",b:"home",arm:0,sections:[
+{h:"Use as gym day substitute if needed",rows:[{n:"DB goblet squat",s:"3",r:"12",x:"90s"},{n:"DB RDL",s:"3",r:"10",x:"90s"},{n:"Push-up (weighted or 3-0-1 tempo)",s:"3",r:"12",x:"90s"},{n:"DB single-arm row",s:"3",r:"10/side",x:"90s"},{n:"Glute bridge march",s:"3",r:"12/side",x:"60s"},{n:"Plank",s:"3",r:"30s",x:"60s"}]}]}]},
+
+{tab:"Arm Care",focus:"After every gym session — 10 minutes, non-negotiable. Pitchers who skip this get hurt.",
+stats:[{l:"When",v:"After every gym session"},{l:"Duration",v:"~10 minutes"},{l:"Equipment",v:"Light resistance band"},{l:"Priority",v:"Non-negotiable"}],
+days:[
+{t:"Full Arm Care Routine",b:"proto",arm:0,sections:[
+{h:"Band & Shoulder Work",rows:[{n:"Band pull-aparts (horizontal)",s:"3",r:"20",x:"—",note:"Feel both scapulas squeeze at end range"},{n:"Band ER (elbow tucked at side)",s:"3",r:"15/side",x:"—",note:"Slow and controlled — not a speed exercise"},{n:"Band Y raise (bent-over)",s:"3",r:"12",x:"—",note:"Lower trap — often undertrained in pitchers"},{n:"Band W-to-Y face pull",s:"3",r:"12",x:"—",note:"Pull to face height, elbows flared high"}]},
+{h:"Stretching",rows:[{n:"Sleeper stretch",s:"2",r:"30s/side",x:"—",note:"Posterior shoulder — critical for pitchers"},{n:"Cross-body shoulder stretch",s:"2",r:"30s/side",x:"—"}]},
+{h:"Red Flags — Stop and Get Checked",rows:[{n:"Inner elbow pain during or after throwing",s:"—",r:"See a pro",x:"—"},{n:"Shoulder pain that lingers next day",s:"—",r:"Rest 3–5 days",x:"—"},{n:"Sharp, pinching, or catching sensation",s:"—",r:"Stop immediately",x:"—"},{n:"Growth plates open at 14 — zero pain tolerance",s:"—",r:"Non-negotiable",x:"—"}]}]}]}
+];
+
+function tbl(rows){
+  var h='<table class="xt"><tr><th class="xh" style="text-align:left">Exercise</th><th class="xh">Sets</th><th class="xh">Reps</th><th class="xh">Rest</th></tr>';
+  rows.forEach(function(r){h+='<tr class="xr"><td><div class="xname">'+r.n+'</div>'+(r.note?'<div class="xnote">'+r.note+'</div>':'')+'</td><td class="xsets">'+r.s+'</td><td class="xreps">'+r.r+'</td><td class="xrest">'+r.x+'</td></tr>';});
+  return h+'</table>';
+}
+
+var tabsEl=document.getElementById('tabs'),pagesEl=document.getElementById('pages');
+D.forEach(function(ph,pi){
+  var tb=document.createElement('div');
+  tb.className='tab'+(pi===0?' on':'');
+  tb.textContent=ph.tab;
+  tb.onclick=function(){
+    document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
+    document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});
+    tb.classList.add('on');
+    document.getElementById('p'+pi).classList.add('on');
+  };
+  tabsEl.appendChild(tb);
+
+  var pg=document.createElement('div');
+  pg.className='pg'+(pi===0?' on':'');
+  pg.id='p'+pi;
+
+  var html='<div class="focus">'+ph.focus+'</div>';
+  html+='<div class="stats">';
+  ph.stats.forEach(function(s){html+='<div class="scard"><div class="slbl">'+s.l+'</div><div class="sval">'+s.v+'</div></div>';});
+  html+='</div>';
+
+  ph.days.forEach(function(d,di){
+    var id='c'+pi+'-'+di;
+    var bc=d.b==='gym'?'bg-gym':d.b==='home'?'bg-home':'bg-proto';
+    var bl=d.b==='gym'?'Gym':d.b==='home'?'Home':'Protocol';
+    html+='<div class="dcard" id="'+id+'"><div class="dtrig" onclick="tog(\''+id+'\')"><span class="dbadge '+bc+'">'+bl+'</span><span class="dtitle">'+d.t+'</span><span class="darrow">&#9660;</span></div><div class="dbody">';
+    d.sections.forEach(function(s){html+='<div class="shead">'+s.h+'</div>'+tbl(s.rows);});
+    if(d.arm)html+='<div class="arm-banner"><div class="arm-title">Arm Care Required</div><div class="arm-body">Complete the full arm care routine after this session. See the Arm Care tab.</div></div>';
+    html+='</div></div>';
+  });
+
+  pg.innerHTML=html;
+  pagesEl.appendChild(pg);
+});
+
+function tog(id){document.getElementById(id).classList.toggle('op');}
+</script>
+</body>
+</html>
